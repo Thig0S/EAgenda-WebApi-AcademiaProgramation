@@ -1,6 +1,6 @@
-@baseUrl = http://localhost:5271
+@baseUrl = https://localhost:7189
 
-###Cadastra Contato
+### Cadastrar contato
 # @name cadastrarContato
 POST {{baseUrl}}/api/contatos
 Content-Type: application/json
@@ -8,16 +8,31 @@ Content-Type: application/json
 {
     "nome": "Junior Testes",
     "email": "teste-{{$guid}}@academiadoprogramador.net",
-    "telefone": "(49) 99999-9999",
+    "telefone": "(11) 99999-0000",
     "cargo": "Analista de Testes",
-    "empresa": "NDD"
+    "empresa": "Academia do Programador"
 }
 
-### contato ID
+###
 @contatoId = {{cadastrarContato.response.body.$.id}}
 
-### Listar Contatos
+### Editar contato
+PUT {{baseUrl}}/api/contatos/{{contatoId}}
+Content-Type: application/json
+
+{
+    "nome": "Junior Testes Atualizado",
+    "email": "teste-atualizado-{{$guid}}@academiadoprogramador.net",
+    "telefone": "(11) 98888-3040",
+    "cargo": "Suporte",
+    "empresa": "Academia do Programador"
+}
+
+### Excluir contato
+DELETE {{baseUrl}}/api/contatos/{{contatoId}}
+
+### Listar contatos
 GET {{baseUrl}}/api/contatos
 
-### Selecionar por Id
-GET  {{baseUrl}}/api/contatos/{{contatoId}}
+### Selecionar contato por ID
+GET {{baseUrl}}/api/contatos/{{contatoId}}

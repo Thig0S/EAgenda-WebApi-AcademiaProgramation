@@ -10,3 +10,10 @@ public record CadastrarContatoRequest(
 public record CadastrarContatoResponse(
     Guid Id
 );
+public record EditarContatoRequest(
+    string Nome,
+    string Email,
+    string Telefone,
+    string? Cargo,
+    string? Empresa
+);
