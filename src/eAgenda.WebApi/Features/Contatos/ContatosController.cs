@@ -15,6 +15,19 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
 
         return Ok(resultado);
     }
+    [HttpGet("{id:guid}")]
+    public ActionResult<ListarContatosDto>? SelecionarPorId(Guid id)
+    {
+        var resultado = servicoContato.SelecionarPorId(id);
+
+        if (resultado.IsFailed)
+            return NotFound(id);
+
+        var dto = resultado.Value;
+
+        return Ok(dto);
+    }
+
     [HttpPost]
     public ActionResult Cadastrar(CadastrarContatoRequest req)
     {
@@ -34,4 +47,5 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
 
         return Created("/api/contatos", res);
     }
+
 }

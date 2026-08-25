@@ -1,5 +1,6 @@
 @baseUrl = http://localhost:5271
 
+###Cadastra Contato
 # @name cadastrarContato
 POST {{baseUrl}}/api/contatos
 Content-Type: application/json
@@ -11,3 +12,12 @@ Content-Type: application/json
     "cargo": "Analista de Testes",
     "empresa": "NDD"
 }
+
+### contato ID
+@contatoId = {{cadastrarContato.response.body.$.id}}
+
+### Listar Contatos
+GET {{baseUrl}}/api/contatos
+
+### Selecionar por Id
+GET  {{baseUrl}}/api/contatos/{{contatoId}}
