@@ -1,4 +1,5 @@
 using eAgenda.Aplicacao.Modulos.ModuloContato;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eAgenda.WebApi.Features.Contatos;
@@ -12,6 +13,25 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
     {
         var resultado = servicoContato.SelecionarTodos();
 
-        return StatusCode(200, resultado);
+        return Ok(resultado);
+    }
+    [HttpPost]
+    public ActionResult Cadastrar(CadastrarContatoRequest req)
+    {
+        var dto = new CadastrarContatoDto(
+            req.Nome,
+            req.Email,
+            req.Telefone,
+            req.Cargo,
+            req.Email
+        );
+        Result<Guid> resultado = servicoContato.Cadastrar(dto);
+
+        if (resultado.IsFailed)
+            return BadRequest();
+
+        var res = new CadastrarContatoResponse(resultado.Value);
+
+        return Created("/api/contatos", res);
     }
 }
