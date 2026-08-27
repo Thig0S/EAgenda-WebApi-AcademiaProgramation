@@ -1,4 +1,5 @@
 using eAgenda.Aplicacao.Modulos.ModuloContato;
+using eAgenda.WebApi.Compartilhado;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,31 +45,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
 
         if (resultadoCadastro.IsFailed)
         {
-            if (resultadoCadastro.HasError(e =>
-            e.Message.Equals("Já existe um contato com este email.") ||
-            e.Message.Equals("Já existe um contato com este telefone.")))
-            {
-                return Problem(
-                    statusCode: StatusCodes.Status409Conflict,
-                    title: "Conflito",
-                    detail: resultadoCadastro.Errors.First().Message,
-                    type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
-                );
-            }
-            //erros de validacao
-
-            foreach(var erro in resultadoCadastro.Errors)
-            {
-                var campo = erro.Metadata["Campo"];
-
-                ModelState.AddModelError(campo.ToString()!, erro.Message);  
-            }
-            ValidationProblemDetails problemDetails = new()
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "requisição invalida"
-            };
-            return ValidationProblem();
+            return this.ParaErroDaApi(resultadoCadastro);
         }
 
         var id = resultadoCadastro.Value;
@@ -100,7 +77,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
         var resultado = servicoContato.Editar(dto);
 
         if (resultado.IsFailed)
-            return NotFound(id);
+            return this.ParaErroDaApi(resultado);
 
         return NoContent();
     }
