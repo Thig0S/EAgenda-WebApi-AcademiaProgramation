@@ -55,10 +55,18 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
                     type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
                 );
             }
+            //erros de validacao
+
+            foreach(var erro in resultadoCadastro.Errors)
+            {
+                var campo = erro.Metadata["Campo"];
+
+                ModelState.AddModelError(campo.ToString()!, erro.Message);  
+            }
             ValidationProblemDetails problemDetails = new()
             {
-                Status = StatusCodes.Status409Conflict,
-                Title = resultadoCadastro.Errors.First().Message
+                Status = StatusCodes.Status400BadRequest,
+                Title = "requisição invalida"
             };
             return ValidationProblem();
         }
