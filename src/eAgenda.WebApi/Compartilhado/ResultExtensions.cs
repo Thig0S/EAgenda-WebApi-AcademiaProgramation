@@ -9,19 +9,31 @@ public static class ResultExtensions
 {
     public static ActionResult ParaErroDaApi(this ControllerBase controller, ResultBase result)
     {
-        var tipoErro = result.Errors.First().Metadata[nameof(TipoErro)].ToString();
+        var tipoErro = (TipoErro)result.Errors.First().Metadata[nameof(TipoErro)];
 
-        if (result.HasError(e =>
-            e.Message.Equals("Já existe um contato com este email.") ||
-            e.Message.Equals("Já existe um contato com este telefone.")))
+        if (tipoErro == TipoErro.NaoEncontrado)
         {
             return controller.Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "Conflito",
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Recurso Não encontrado",
                 detail: result.Errors.First().Message,
-                type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
+                type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/404"
             );
         }
+
+        if (tipoErro == TipoErro.Conflito)
+
+            if (result.HasError(e =>
+                e.Message.Equals("Já existe um contato com este email.") ||
+                e.Message.Equals("Já existe um contato com este telefone.")))
+            {
+                return controller.Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Conflito",
+                    detail: result.Errors.First().Message,
+                    type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
+                );
+            }
         //erros de validacao
         var modelState = new ModelStateDictionary();
         foreach (var erro in result.Errors)

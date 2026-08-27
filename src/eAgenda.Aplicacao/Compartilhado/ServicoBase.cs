@@ -21,7 +21,10 @@ public abstract class ServicoBase<T> where T : EntidadeBase<T>
 
         Result resultado = Result.Ok();
 
-         
+        foreach (ErroValidacao erro in erros)
+        {
+            resultado.WithError(CriarErro(TipoErro.Validacao, erro.Campo, erro.Mensagem));
+        }
 
         return resultado;
     }
