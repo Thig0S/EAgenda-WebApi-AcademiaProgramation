@@ -22,10 +22,10 @@ public class ServicoContato : ServicoBase<Contato>
     public Result<Guid> Cadastrar(CadastrarContatoDto dto)
     {
         if (ExisteContatoComMesmoEmail(dto.Email))
-            return Falha<Guid>(nameof(dto.Email), "Já existe um contato com este email.");
+            return Falha<Guid>(TipoErro.Conflito, nameof(dto.Email), "Já existe um contato com este email.");
 
         if (ExisteContatoComMesmoTelefone(dto.Telefone))
-            return Falha<Guid>(nameof(dto.Telefone), "Já existe um contato com este telefone.");
+            return Falha<Guid>(TipoErro.Conflito, nameof(dto.Telefone), "Já existe um contato com este telefone.");
 
         Contato novoContato = new Contato(
             dto.Nome,

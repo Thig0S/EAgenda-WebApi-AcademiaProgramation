@@ -1,3 +1,4 @@
+using eAgenda.Aplicacao.Compartilhado;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -8,6 +9,8 @@ public static class ResultExtensions
 {
     public static ActionResult ParaErroDaApi(this ControllerBase controller, ResultBase result)
     {
+        var tipoErro = result.Errors.First().Metadata[nameof(TipoErro)].ToString();
+
         if (result.HasError(e =>
             e.Message.Equals("Já existe um contato com este email.") ||
             e.Message.Equals("Já existe um contato com este telefone.")))

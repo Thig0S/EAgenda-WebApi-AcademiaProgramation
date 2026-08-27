@@ -1,21 +1,27 @@
+using System.Net.Http.Headers;
 using eAgenda.Dominio.Compartilhado;
 using FluentResults;
 
 namespace eAgenda.Aplicacao.Compartilhado;
 
+public enum TipoErro
+{
+    Validacao,
+    NaoEncontrado,
+    Conflito
+}
 public abstract class ServicoBase<T> where T : EntidadeBase<T>
 {
     protected static Result ValidarEntidade(T entidade)
     {
-        List<string> erros = entidade.Validar();
+        IReadOnlyList<ErroValidacao> erros = entidade.Validar();
 
         if (erros.Count == 0)
             return Result.Ok();
 
         Result resultado = Result.Ok();
 
-        foreach (string erro in erros)
-            resultado.WithError(new Error(erro).WithMetadata("Campo", string.Empty));
+         
 
         return resultado;
     }
@@ -28,5 +34,21 @@ public abstract class ServicoBase<T> where T : EntidadeBase<T>
     protected static Result<TValue> Falha<TValue>(string campo, string mensagem)
     {
         return Result.Fail<TValue>(new Error(mensagem).WithMetadata("Campo", campo));
+    }
+    protected static Result Falha(TipoErro tipo, string campo, string mensagem)
+    {
+        return Result.Fail(CriarErro(tipo, campo, mensagem));
+    }
+
+    protected static Result<TValue> Falha<TValue>(TipoErro tipo, string campo, string mensagem)
+    {
+        return Result.Fail<TValue>(new Error(mensagem).WithMetadata("Campo", campo));
+    }
+
+    private static Error CriarErro(TipoErro tipo, string campo, string mensagem)
+    {
+        return new Error(mensagem)
+            .WithMetadata(nameof(TipoErro), tipo)
+            .WithMetadata("Campo", campo);
     }
 }
