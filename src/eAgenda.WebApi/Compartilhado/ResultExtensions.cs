@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using eAgenda.Aplicacao.Compartilhado;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
@@ -7,47 +8,89 @@ namespace eAgenda.WebApi.Compartilhado;
 
 public static class ResultExtensions
 {
-    public static ActionResult ParaErroDaApi(this ControllerBase controller, ResultBase result)
+    public static ActionResult ProblemDetails(this ControllerBase controller, ResultBase result)
     {
         var tipoErro = (TipoErro)result.Errors.First().Metadata[nameof(TipoErro)];
+        var mensagemErro = result.Errors.First().Message;
 
-        if (tipoErro == TipoErro.NaoEncontrado)
+        if (tipoErro.Equals(TipoErro.NaoEncontrado))
         {
-            return controller.Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: "Recurso Não encontrado",
-                detail: result.Errors.First().Message,
-                type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/404"
+            return CriarProblem(
+                controller,
+                StatusCodes.Status404NotFound,
+                mensagemErro,
+                "Recurso Não Encontrado",
+                ProblemDetailsTypes.NotFound
             );
         }
 
-        if (tipoErro == TipoErro.Conflito)
-
-            if (result.HasError(e =>
-                e.Message.Equals("Já existe um contato com este email.") ||
-                e.Message.Equals("Já existe um contato com este telefone.")))
-            {
-                return controller.Problem(
-                    statusCode: StatusCodes.Status409Conflict,
-                    title: "Conflito",
-                    detail: result.Errors.First().Message,
-                    type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
-                );
-            }
-        //erros de validacao
-        var modelState = new ModelStateDictionary();
-        foreach (var erro in result.Errors)
+        if (tipoErro.Equals(TipoErro.Conflito))
         {
-            var campo = erro.Metadata["Campo"];
-
-            modelState.AddModelError(campo.ToString()!, erro.Message);
+            return CriarProblem(
+                controller,
+                StatusCodes.Status409Conflict,
+                mensagemErro,
+                "Conflito",
+                ProblemDetailsTypes.Conflict
+            );
         }
-        ValidationProblemDetails problemDetails = new(modelState)
+
+        if (tipoErro.Equals(TipoErro.Validacao))
         {
-            Status = StatusCodes.Status400BadRequest,
-            Title = "requisição invalida"
+            var modelState = new ModelStateDictionary();
+
+            foreach (var erro in result.Errors)
+            {
+                var campo = erro.Metadata["Campo"].ToString()!;
+
+                modelState.AddModelError(campo, erro.Message);
+            }
+
+            ValidationProblemDetails problemDetails = new(modelState)
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Requisição Inválida",
+                Type = ProblemDetailsTypes.BadRequest
+            };
+
+            AdicionarTraceId(problemDetails, controller);
+
+            return controller.ValidationProblem(problemDetails);
+        }
+
+        return CriarProblem(
+            controller,
+            StatusCodes.Status500InternalServerError,
+            null,
+            "Erro do Interno do Servidor",
+            ProblemDetailsTypes.InternalServerError
+        );
+    }
+
+    private static ObjectResult CriarProblem(
+        ControllerBase controller,
+        int statusCode,
+        string? detail,
+        string title,
+        string type
+    )
+    {
+        ProblemDetails problemDetails = new()
+        {
+            Status = statusCode,
+            Detail = detail,
+            Title = title,
+            Type = type
         };
 
-        return controller.StatusCode(StatusCodes.Status400BadRequest, problemDetails);
+        AdicionarTraceId(problemDetails, controller);
+
+        return controller.StatusCode(statusCode, problemDetails);
+    }
+
+    private static void AdicionarTraceId(ProblemDetails problemDetails, ControllerBase controller)
+    {
+        problemDetails.Extensions["traceId"] =
+            Activity.Current?.Id ?? controller.HttpContext.TraceIdentifier;
     }
 }

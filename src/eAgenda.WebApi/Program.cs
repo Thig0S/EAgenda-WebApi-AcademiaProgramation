@@ -1,14 +1,31 @@
+using System.Diagnostics;
 using eAgenda.Aplicacao;
 using eAgenda.Infra;
 using eAgenda.Infra.Compartilhado.Orm;
+using eAgenda.WebApi.Compartilhado;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfraRepositories(builder.Configuration, builder.Logging);
-builder.Services.AddControllers();
 
+builder.Services.AddControllers();
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = context =>
+    {
+        string? type = ProblemDetailsTypes.ObterPorStatus(context.ProblemDetails.Status);
+
+        if (type is not null)
+            context.ProblemDetails.Type = type;
+
+        //traceId
+
+        context.ProblemDetails.Extensions["traceId"]
+            = Activity.Current?.Id ?? context.HttpContext.TraceIdentifier;
+    };
+});
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -19,7 +36,7 @@ if (app.Environment.IsDevelopment())
 
     dbcontext.Database.Migrate();
 }
-
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.MapControllers();
 

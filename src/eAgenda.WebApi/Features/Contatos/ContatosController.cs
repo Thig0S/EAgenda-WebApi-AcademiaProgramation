@@ -45,7 +45,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
 
         if (resultadoCadastro.IsFailed)
         {
-            return this.ParaErroDaApi(resultadoCadastro);
+            return this.ProblemDetails(resultadoCadastro);
         }
 
         var id = resultadoCadastro.Value;
@@ -77,7 +77,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
         var resultado = servicoContato.Editar(dto);
 
         if (resultado.IsFailed)
-            return this.ParaErroDaApi(resultado);
+            return this.ProblemDetails(resultado);
 
         return NoContent();
     }
