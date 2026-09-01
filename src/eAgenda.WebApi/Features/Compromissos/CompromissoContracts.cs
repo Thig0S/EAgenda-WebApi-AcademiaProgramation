@@ -12,3 +12,13 @@ public record CadastrarCompromissoRequest(
     string? Link,
     Guid? ContatoId
 );
+public record EditarCompromissoRequest(
+    string Assunto,
+    DateTime DataOcorrencia,
+    TimeSpan HoraInicio,
+    TimeSpan HoraTermino,
+    TipoCompromisso Tipo,
+    string? Local,
+    string? Link,
+    Guid? ContatoId
+);

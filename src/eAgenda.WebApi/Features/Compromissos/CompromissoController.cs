@@ -60,4 +60,42 @@ public sealed class CompromissoController(ServicoCompromisso servicoCompromisso)
             resultadoSelecao.Value
         );
     }
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public ActionResult Editar(Guid id, EditarCompromissoRequest req)
+    {
+        EditarCompromissoDto dto = new(
+            id,
+            req.Assunto,
+            req.DataOcorrencia,
+            req.HoraInicio,
+            req.HoraTermino,
+            req.Tipo,
+            req.Local,
+            req.Link,
+            req.ContatoId
+        );
+
+        var resultadoEdicao = servicoCompromisso.Editar(dto);
+
+        if (resultadoEdicao.IsFailed)
+            return this.ProblemDetails(resultadoEdicao);
+
+        return NoContent();
+    }
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult Excluir(Guid id)
+    {
+        var resultadoExclusao = servicoCompromisso.Excluir(id);
+
+        if(resultadoExclusao.IsFailed)
+            return this.ProblemDetails(resultadoExclusao);
+
+        return NoContent();
+    }
 }
