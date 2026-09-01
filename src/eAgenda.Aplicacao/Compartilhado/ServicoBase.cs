@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using eAgenda.Dominio.Compartilhado;
 using FluentResults;
 
@@ -10,9 +9,10 @@ public enum TipoErro
     NaoEncontrado,
     Conflito
 }
+
 public abstract class ServicoBase<T> where T : EntidadeBase<T>
 {
-    protected static Result ValidarEntidade(T entidade)
+    protected static Result ValidarEntidade<TEntidade>(EntidadeBase<TEntidade> entidade)
     {
         IReadOnlyList<ErroValidacao> erros = entidade.Validar();
 
@@ -22,22 +22,11 @@ public abstract class ServicoBase<T> where T : EntidadeBase<T>
         Result resultado = Result.Ok();
 
         foreach (ErroValidacao erro in erros)
-        {
             resultado.WithError(CriarErro(TipoErro.Validacao, erro.Campo, erro.Mensagem));
-        }
 
         return resultado;
     }
 
-    protected static Result Falha(string campo, string mensagem)
-    {
-        return Result.Fail(new Error(mensagem).WithMetadata("Campo", campo));
-    }
-
-    protected static Result<TValue> Falha<TValue>(string campo, string mensagem)
-    {
-        return Result.Fail<TValue>(new Error(mensagem).WithMetadata("Campo", campo));
-    }
     protected static Result Falha(TipoErro tipo, string campo, string mensagem)
     {
         return Result.Fail(CriarErro(tipo, campo, mensagem));
@@ -45,7 +34,7 @@ public abstract class ServicoBase<T> where T : EntidadeBase<T>
 
     protected static Result<TValue> Falha<TValue>(TipoErro tipo, string campo, string mensagem)
     {
-        return Result.Fail<TValue>(new Error(mensagem).WithMetadata("Campo", campo));
+        return Result.Fail<TValue>(CriarErro(tipo, campo, mensagem));
     }
 
     private static Error CriarErro(TipoErro tipo, string campo, string mensagem)
