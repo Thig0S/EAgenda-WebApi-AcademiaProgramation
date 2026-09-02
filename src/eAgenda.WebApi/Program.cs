@@ -8,7 +8,6 @@ using eAgenda.Infra.Compartilhado.Orm;
 using eAgenda.WebApi.Compartilhado;
 using eAgenda.WebApi.Compartilhado.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
