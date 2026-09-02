@@ -1,12 +1,14 @@
 using eAgenda.Aplicacao.Modulos.ModuloContato;
 using eAgenda.WebApi.Compartilhado;
 using FluentResults;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eAgenda.WebApi.Features.Contatos;
 
 [ApiController]
 [Route("api/contatos")]
+[Authorize]
 public sealed class ContatosController(ServicoContato servicoContato) : ControllerBase
 {
     [HttpGet]

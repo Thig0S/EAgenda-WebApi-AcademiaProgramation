@@ -1,12 +1,14 @@
 using eAgenda.Aplicacao.Modulos.ModuloCompromisso;
 using eAgenda.WebApi.Compartilhado;
 using FluentResults;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eAgenda.WebApi.Features.Compromissos;
 
 [ApiController]
 [Route("api/compromissos")]
+[Authorize]
 public sealed class CompromissoController(ServicoCompromisso servicoCompromisso) : ControllerBase
 {
     [HttpGet]
