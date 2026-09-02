@@ -3,11 +3,16 @@ using eAgenda.Dominio.Modulos.ModuloCompromisso;
 using eAgenda.Dominio.Modulos.ModuloContato;
 using eAgenda.Dominio.Modulos.ModuloDespesa;
 using eAgenda.Dominio.Modulos.ModuloTarefa;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace eAgenda.Infra.Compartilhado.Orm;
 
-public sealed class EAgendaDbContext(DbContextOptions<EAgendaDbContext> options) : DbContext(options)
+public sealed class EAgendaDbContext(DbContextOptions<EAgendaDbContext> options)
+    : IdentityDbContext<IdentityUser<Guid>,
+    IdentityRole<Guid>,
+    Guid>(options)
 {
     public DbSet<Contato> Contatos => Set<Contato>();
     public DbSet<Compromisso> Compromissos => Set<Compromisso>();
