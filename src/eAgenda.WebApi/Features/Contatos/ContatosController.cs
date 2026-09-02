@@ -8,7 +8,6 @@ namespace eAgenda.WebApi.Features.Contatos;
 
 [ApiController]
 [Route("api/contatos")]
-[Authorize]
 public sealed class ContatosController(ServicoContato servicoContato) : ControllerBase
 {
     [HttpGet]

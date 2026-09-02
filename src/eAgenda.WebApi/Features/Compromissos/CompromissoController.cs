@@ -8,7 +8,6 @@ namespace eAgenda.WebApi.Features.Compromissos;
 
 [ApiController]
 [Route("api/compromissos")]
-[Authorize]
 public sealed class CompromissoController(ServicoCompromisso servicoCompromisso) : ControllerBase
 {
     [HttpGet]

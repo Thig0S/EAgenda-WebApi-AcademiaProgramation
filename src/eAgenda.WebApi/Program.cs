@@ -16,6 +16,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfraRepositories(builder.Configuration, builder.Logging);
 builder.Services.AddApplicationServices();
 
+builder.Services.AddSingleton(provider =>
+{
+    var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName)
+             .Get<JwtOptions>() ?? new JwtOptions();
+
+    return new JwtProvider(jwtOptions);
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -79,6 +87,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
+app.UseStatusCodePages();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
