@@ -53,6 +53,8 @@ public static class InjecaoDependencia
            }
        });
 
+        services.AddDataProtection();
+
         services.AddIdentityCore<IdentityUser<Guid>>(
             options =>
             {
